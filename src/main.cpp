@@ -8,6 +8,10 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ESP8266WiFi.h>
+#include <FS.h>
+#include <ESPAsyncWebServer.h>
+#include <WebSocketsServer.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -23,7 +27,7 @@ float fog_temp = 160.0;
 float sys_temp = 24.0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
