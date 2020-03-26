@@ -31,9 +31,10 @@ volatile bool button = false;
 volatile bool wifi_button = false;
 volatile bool connected = false;
 volatile int num_connected = 0;
-volatile float fog_temp = 0.0;
+volatile float fog_temp = 20.0;
 volatile float sys_temp = 0.0;
 volatile float fogjuice = 0.0;
+uint32_t test_timestamp;
 int prev_x = 0;
 int speed = 16; // pixels per second
 int prev_timestamp = -1;
@@ -56,7 +57,7 @@ IPAddress apIP(192, 168, 4, 1);
 DNSServer dnsServer;
 AsyncWebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(1337);
-char msg_buf[10];
+char msg_buf[128];
 int led_state = 0;
 
 void updateText();
@@ -76,14 +77,14 @@ void setup() {
     while(1);
   }
 
-Dir dir = SPIFFS.openDir("/");
-while (dir.next()) {
-    Serial.print(dir.fileName());
-    if(dir.fileSize()) {
-        File f = dir.openFile("r");
-        Serial.println(f.size());
-    }
-}
+  Dir dir = SPIFFS.openDir("/");
+  while (dir.next()) {
+      Serial.print(dir.fileName());
+      if(dir.fileSize()) {
+          File f = dir.openFile("r");
+          Serial.println(f.size());
+      }
+  }
 
   // Start access point
   WiFi.mode(WIFI_AP);
@@ -100,7 +101,7 @@ while (dir.next()) {
   Serial.print("My IP address: ");
   Serial.println(WiFi.softAPIP());
 
-// On HTTP request for root, provide index.html file
+  // On HTTP request for root, provide index.html file
   server.on("/", HTTP_GET, onIndexRequest);
   server.on("/generate_204", HTTP_GET, onIndexRequest);
   server.on("/gen_204", HTTP_GET, onIndexRequest);
@@ -108,6 +109,13 @@ while (dir.next()) {
   server.on("/L2", HTTP_GET, onIndexRequest);
   server.on("/ALL", HTTP_GET, onIndexRequest);
   server.on("/bag", HTTP_GET, onIndexRequest);
+
+  server.on("/btn", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/btn.png", "image/png");
+  });
+  server.on("/btn_pressed", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/btn_pressed.png", "image/png");
+  });
  
   // Handle requests for pages that do not exist
   server.onNotFound(onPageNotFound);
@@ -129,6 +137,8 @@ while (dir.next()) {
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   display.clearDisplay();
+
+  test_timestamp = millis()+1000;
 }
 
 void loop() {
@@ -137,11 +147,21 @@ void loop() {
     update_text = false;
     display.clearDisplay();
     updateText();
+    sprintf(msg_buf, "%d %d %d %d %d %d", (int)fog_temp, (int)sys_temp, heater, pump, (int)fogjuice, button);
+    Serial.printf("Broadcasting: %s\n", msg_buf);
+    webSocket.broadcastTXT(msg_buf);
   }
 
   dnsServer.processNextRequest();
   webSocket.loop();
   drawAnimation();
+
+  if (test_timestamp < millis()) {
+    test_timestamp = millis() + 1000;
+    fog_temp += 1.0;
+    fogjuice += 0.3;
+    update_text = true;
+  }
 
   display.display();
   delay(50);
@@ -266,8 +286,8 @@ void onWebSocketEvent(uint8_t client_num,
         digitalWrite(LED_BUILTIN, led_state);
  
       // Report the state of the LED
-      } else if ( strcmp((char *)payload, "getLEDState") == 0 ) {
-        sprintf(msg_buf, "%d", led_state);
+      } else if ( strcmp((char *)payload, "getState") == 0 ) {
+        sprintf(msg_buf, "%d %d %d %d %d %d", (int)fog_temp, (int)sys_temp, heater, pump, (int)fogjuice, button);
         Serial.printf("Sending to [%u]: %s\n", client_num, msg_buf);
         webSocket.sendTXT(client_num, msg_buf);
  

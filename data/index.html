@@ -4,14 +4,18 @@
 <script language="javascript" type="text/javascript">
  
 var url = "ws://192.168.4.1:1337/";
-var output;
-var button;
-var canvas;
-var context;
+
  
 // This is called when the page finishes loading
 function init() {
     button = document.getElementById("fogger");
+
+    document.getElementById('btn').oncontextmenu = function(event) {
+        event.preventDefault();
+        event.stopPropagation(); // not necessary in my case, could leave in case stopImmediateProp isn't available? 
+        event.stopImmediatePropagation();
+        return false;
+    };
 /*    
     // Assign page elements to variables
     button = document.getElementById("toggleButton");
@@ -54,10 +58,10 @@ function onOpen(evt) {
     // Enable button
     button.disabled = false;
     button2.disabled = false;
-    
-    // Get the current state of the LED
-    doSend("getLEDState");
-*/
+*/    
+    // Get the current state
+    doSend("getState");
+
 }
  
 // Called when the WebSocket connection is closed
@@ -79,6 +83,13 @@ function onMessage(evt) {
  
     // Print out our received message
     console.log("Received: " + evt.data);
+    var parts = evt.data.split(" ");    
+    document.getElementById("fogtemp").innerHTML = parts[0] + "°C";
+    document.getElementById("systemp").innerHTML = parts[1] + "°C";
+    document.getElementById("heat").innerHTML = (parts[2]=="1"?"ON":"OFF");
+    document.getElementById("pump").innerHTML = (parts[3]=="1"?"ON":"OFF");
+    document.getElementById("fogjuice").innerHTML = parts[4] + "ml";
+    document.getElementById("hardwarebutton").innerHTML = (parts[5]=="1"?"ON":"OFF");
     /*
     // Update circle graphic with LED state
     switch(evt.data) {
@@ -118,20 +129,25 @@ function onPress() {
 function onDown() {
     doSend("fogDown");
     //doSend("getLEDState");
-    button.style.background = "#00adb5";
+    //button.style.background = "#00adb5";
 }
 
 function onUp() {
     doSend("fogUp");
     //doSend("getLEDState");
-    button.style.background = "#eeeeee";
+    //button.style.background = "#eeeeee";
 }
 
 // Call the init function as soon as the page loads
 window.addEventListener("load", init, false);
  
-</script>
+/*window.oncontextmenu = function(event) {
+     event.preventDefault();
+     event.stopPropagation();
+     return false;
+};*/
 
+</script>
 <body style="font-size: 4vw; color: #00adb5; background-color: #222831; height: 100%; font-family: Arial, Helvetica, sans-serif;">
 
 <center>
@@ -143,9 +159,41 @@ window.addEventListener("load", init, false);
         <td><canvas id="led" width="50" height="50"></canvas></td>
     </tr>
 </table>
-<button id="toggleButton2" onmousedown="onDown()" onmouseup="onUp()" disabled>FOG</button>-->
-<div style="width: 40%; height: 200px; border: 1px solid; background-color: #eeeeee;" id="fogger" ontouchstart="onDown()" ontouchend="onUp()"></div>
-PRESS TO FOG!
+<button id="toggleButton2" onmousedown="onDown()" onmouseup="onUp()" disabled>FOG</button>
+<div style="width: 40%; height: 200px; border: 1px solid; background-color: #eeeeee;" id="fogger" ontouchstart="onDown()" ontouchend="onUp()"></div>-->
+<br/>
+<img id="btn" style="user-select: none; -webkit-touch-callout: none; -webkit-user-select: none; " ontouchstart="this.setAttribute('src', 'btn_pressed'); onDown();" ontouchend="this.setAttribute('src', 'btn'); onUp();" src="btn"/>
+<br/>
+PRESS BUTTON TO FOG!
+<br/>
+<br/>
+<table style="color: #3b6978;">
+    <tr>
+        <td>Fog temp:</td>
+        <td id="fogtemp">0</td>
+    </tr>
+    <tr>
+        <td>Sys temp:</td>
+        <td id="systemp">0</td>
+    </tr>
+    <tr>
+        <td>Heat:</td>
+        <td id="heat">0</td>
+    </tr>
+    <tr>
+        <td>Button:</td>
+        <td id="hardwarebutton">0</td>
+    </tr>
+    <tr>
+        <td>Pump:</td>
+        <td id="pump">0</td>
+    </tr>
+    <tr>
+        <td>Fogjuice:</td>
+        <td id="fogjuice">0</td>
+    </tr>
+</table>
+<img id="btn_pressed" style="visibility: hidden; user-select: none; -webkit-touch-callout: none; -webkit-user-select: none; " src="btn_pressed"/>
 </center>
 
 </body>
