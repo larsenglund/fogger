@@ -60,6 +60,8 @@ Video of first testrun.
 ## Electronics
 Wiring of components
 
+![Pewpew](docs/connections_bb.png)
+
 ## Software
 Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
 
