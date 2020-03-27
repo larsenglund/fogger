@@ -158,8 +158,10 @@ void loop() {
 
   if (test_timestamp < millis()) {
     test_timestamp = millis() + 1000;
-    fog_temp += 1.0;
-    fogjuice += 0.3;
+    fog_temp = (fog_temp + 1.0);
+    if (fog_temp > 300) fog_temp = 0;
+    fogjuice = (fogjuice + 0.3);
+    if (fogjuice > 5000) fogjuice = 0;
     update_text = true;
   }
 
