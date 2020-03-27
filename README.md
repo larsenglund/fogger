@@ -60,6 +60,17 @@ Video of first testrun.
 ## Electronics
 Wiring of components
 
+![Connections](docs/connections_bb.png)
+
+The heater is connected to channel 1 of the relay board and the pump to channel 2.
+
+Pin selection was made using this information.
+
+![Wemos pins](docs/images/wemospins.jpg)
+
+![ESP8266 pins](docs/images/esp8266pins.png)
+
+
 ## Software
 Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
 
