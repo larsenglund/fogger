@@ -2,6 +2,7 @@
 A cheap DIY fog machine with automatic temperature control, display and WiFi remote control.
 
 ## Hardware
+### Bill of materials
 The basic fog machine consists of
 * Grill lighter, $15
 * Copper fuel pipe (6mm outer diameter, 5m long), $22
@@ -17,7 +18,7 @@ Total cost: $51 (assuming you have the last four items on the list, if not rockw
 
 The upgraded version with automatic temperature control, display and WiFi remote control removes the "manual" thermocouple thermometer and adds these things:
 * Wemos D1 mini (ESP8266) $3
-* MAX6675 Module + K Type Thermocouple, $5
+* MAX6675/MAX31855 Module + K Type Thermocouple, $5
 * 2 channel relay module (3.3V), $3
 * 5V charger, $2
 * OLED display (0.91", 128x32, I2C), $2
@@ -29,6 +30,8 @@ Fog juice (smoke liquid) is made from
 Total cost for 5L of 20% fog juice: $20
 
 Fog juice can also be bought premade for about the same price but then you can't vary the concentration as easy.
+
+### Assembly
 
 Some of the stuff needed
 
@@ -53,3 +56,10 @@ Connect the outlet of the pump to the copper pipe using a PVC tube and on the in
 Video of first testrun.
 
 [![](http://img.youtube.com/vi/uRvGTlmDHWQ/0.jpg)](http://www.youtube.com/watch?v=uRvGTlmDHWQ "DIY smoke machine test")
+
+## Electronics
+Wiring of components
+
+## Software
+Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
+
