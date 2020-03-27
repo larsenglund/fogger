@@ -1,5 +1,5 @@
 # Fogger
-A cheap DIY fog machine.
+A cheap DIY fog machine with automatic temperature control, display and WiFi remote control.
 
 ## Hardware
 The basic fog machine consists of
