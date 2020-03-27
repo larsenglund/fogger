@@ -22,6 +22,7 @@ The upgraded version with automatic temperature control, display and WiFi remote
 * 2 channel relay module (3.3V), $3
 * 5V charger, $2
 * OLED display (0.91", 128x32, I2C), $2
+* 10K thermistor + resistor
 Total cost for upgraded version: $62
 
 Fog juice (smoke liquid) is made from
@@ -62,7 +63,7 @@ Wiring of components
 
 ![Connections](docs/connections_bb.png)
 
-The heater is connected to channel 1 of the relay board and the pump to channel 2.
+The heater is connected to channel 1 of the relay board and the pump to channel 2. A 10K thermistor is connected to A0.
 
 Pin selection was made using this information.
 
