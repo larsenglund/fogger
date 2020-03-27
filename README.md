@@ -75,8 +75,8 @@ Pin selection was made using this information.
 ## Software
 Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
 
-![Wemos pins](docs/images/captive_portal.jpg)
+![Wemos pins](docs/images/captive_portal_result.jpg)
 
 The OLED displays the same information as the captive portal.
 
-![Wemos pins](docs/images/display.jpg)
+![Wemos pins](docs/images/display_result.jpg)
