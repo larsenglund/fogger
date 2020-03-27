@@ -27,6 +27,7 @@ Fog juice (smoke liquid) is made from
 * Destilled water (4L), $4
 * Glycerol (1L), $16
 Total cost for 5L of 20% fog juice: $20
+
 Fog juice can also be bought premade for about the same price but then you can't vary the concentration as easy.
 
 Some of the stuff needed
