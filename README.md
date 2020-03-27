@@ -62,6 +62,8 @@ Wiring of components
 
 ![Pewpew](docs/connections_bb.png)
 
+The heater is connected to channel 1 of the relay board and the pump to channel 2.
+
 ## Software
 Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
 
