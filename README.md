@@ -29,9 +29,26 @@ Fog juice (smoke liquid) is made from
 Total cost for 5L of 20% fog juice: $20
 Fog juice can also be bought premade for about the same price but then you can't vary the concentration as easy.
 
+Some of the stuff needed
+
 ![Materials](docs/images/IMG_20200320_124921_result.jpg)
-![Materials](docs/images/IMG_20200320_132139_result.jpg)
-![Materials](docs/images/IMG_20200320_134547_result.jpg)
-![Materials](docs/images/IMG_20200323_131316_result.jpg)
-![Materials](docs/images/IMG_20200323_134646_result.jpg)
+
+Carefully bend the copper pipe to follow the shape of the grill lighter. Mine was able to go three loops along the whole heater element with a few decimeters to spare on each end. I used cable ties to keep the pipe in place as I was bending it.
+
+![Bending](docs/images/IMG_20200320_132139_result.jpg)
+
+The cable ties are replaced with a tight wiring of metal wire.
+
+![Wiring](docs/images/IMG_20200320_134547_result.jpg)
+
+The thermocouple is wired so that the business end is close to the center of the heater without touching any metal. Then the whole thing is placed on a sheet of rockwool (5-10cm thick) and sand is poured ontop (to act as heat distribution and storage). The rockwool is then folded over to make a insulated package and the whole thing is wrapped in aluminium foil.
+
+![Sand](docs/images/IMG_20200323_131316_result.jpg)
+
+Connect the outlet of the pump to the copper pipe using a PVC tube and on the inled put another tube that leads to a container of fog juice. For the manual version you then plug in the heater and when the temperature reaches 260 degrees celcius on the thermocouple thermometer you can turn off the heater. Turn on power to the pump for a while and enjoy the smoke! When the temperature drops below 250 degrees again you can plug the heater in for a while until it reaches 260 degrees again. The system has quite a bit of thermal lag so if you turn off the heater at 260 degrees it overshoots to about 295 degrees in my setup.
+
+![Pewpew](docs/images/IMG_20200323_134646_result.jpg)
+
+Video of first testrun.
+
 [![](http://img.youtube.com/vi/uRvGTlmDHWQ/0.jpg)](http://www.youtube.com/watch?v=uRvGTlmDHWQ "DIY smoke machine test")
