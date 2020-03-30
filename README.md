@@ -14,6 +14,7 @@ The basic fog machine consists of
 * Metal wire
 * Rockwool insulation
 * About 1 liter of sand
+
 Total cost: $51 (assuming you have the last four items on the list, if not rockwool might be the hardest to come by in small quantities)
 
 The upgraded version with automatic temperature control, display and WiFi remote control removes the "manual" thermocouple thermometer and adds these things:
@@ -23,11 +24,13 @@ The upgraded version with automatic temperature control, display and WiFi remote
 * 5V charger, $2
 * OLED display (0.91", 128x32, I2C), $2
 * 10K thermistor + resistor
+
 Total cost for upgraded version: $62
 
 Fog juice (smoke liquid) is made from
 * Destilled water (4L), $4
 * Glycerol (1L), $16
+
 Total cost for 5L of 20% fog juice: $20
 
 Fog juice can also be bought premade for about the same price but then you can't vary the concentration as easy.
@@ -75,8 +78,8 @@ Pin selection was made using this information.
 ## Software
 Software for the Wemos is created with PlatformIO and serves up a captive portal that's used for remote control.
 
-![Wemos pins](docs/images/captive_portal.jpg)
+![Wemos pins](docs/images/captive_portal_result.jpg)
 
 The OLED displays the same information as the captive portal.
 
-![Wemos pins](docs/images/display.jpg)
+![Wemos pins](docs/images/display_result.jpg)
