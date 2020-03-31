@@ -16,6 +16,7 @@
 #include <WebSocketsServer.h>
 #include <Fonts/Picopixel.h>
 #include <Fonts/FreeSansBold9pt7b.h>
+#include <MAX31855.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -42,8 +43,10 @@ int dir = 1;
 char buff[16];
 int16_t _x1, _y1;
 uint16_t w, h;
+int32_t rawData = 0;
 
-// Constants
+MAX31855 myMAX31855(D8);
+
 const char *ssid = "FOGGER-AP";
 const char *password =  "fogjuice";
 const char *msg_toggle_led = "toggleLED";
@@ -138,6 +141,46 @@ void setup() {
   display.setTextSize(1);
   display.clearDisplay();
 
+  myMAX31855.begin();
+  while (myMAX31855.getChipID() != MAX31855_ID)
+  {
+    Serial.println(F("MAX6675 error")); //(F()) saves string to flash & keeps dynamic memory free
+    delay(5000);
+  }
+  Serial.println(F("MAX6675 OK"));
+
+  switch (myMAX31855.detectThermocouple())
+  {
+    case MAX31855_THERMOCOUPLE_SHORT_TO_VCC:
+      Serial.println(F("Thermocouple short to VCC"));
+      break;
+
+    case MAX31855_THERMOCOUPLE_SHORT_TO_GND:
+      Serial.println(F("Thermocouple short to GND"));
+      break;
+
+    case MAX31855_THERMOCOUPLE_NOT_CONNECTED:
+      Serial.println(F("Thermocouple not connected"));
+      break;
+
+    case MAX31855_THERMOCOUPLE_UNKNOWN:
+      Serial.println(F("Thermocouple unknown error, check spi cable"));
+      break;
+  }
+
+  if (myMAX31855.detectThermocouple() == MAX31855_THERMOCOUPLE_OK) {
+    rawData = myMAX31855.readRawData();
+
+    Serial.print(F("Chip ID: "));
+    Serial.println(myMAX31855.getChipID(rawData));
+
+    Serial.print(F("Cold Junction: "));
+    Serial.println(myMAX31855.getColdJunctionTemperature(rawData));
+
+    Serial.print(F("Thermocouple: "));
+    Serial.println(myMAX31855.getTemperature(rawData));
+  }
+  
   test_timestamp = millis()+1000;
 }
 
