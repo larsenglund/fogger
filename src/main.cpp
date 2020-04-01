@@ -57,6 +57,8 @@ volatile int num_connected = 0;
 volatile float fog_temp = 0.0;
 volatile float sys_temp = 0.0;
 volatile float fogjuice = 0.0;
+float fog_upper_temp = 240.0;
+float fog_lower_temp = 230.0;
 uint32_t test_timestamp;
 int prev_x = 0;
 int speed = 16; // pixels per second
@@ -203,10 +205,11 @@ void setup() {
 
     Serial.print(F("Cold Junction: "));
     Serial.println(myMAX31855.getColdJunctionTemperature(rawData));
-    fog_temp = myMAX31855.getColdJunctionTemperature(rawData);
 
     Serial.print(F("Thermocouple: "));
     Serial.println(myMAX31855.getTemperature(rawData));
+
+    fog_temp = myMAX31855.getTemperature(rawData);
   }
 
   Serial.print("NTC RAW: ");
@@ -240,11 +243,20 @@ void loop() {
     delay_count = 0;
     if (myMAX31855.detectThermocouple() == MAX31855_THERMOCOUPLE_OK) {
       rawData = myMAX31855.readRawData();
-      float new_temp = myMAX31855.getColdJunctionTemperature(rawData);
+      float new_temp = myMAX31855.getTemperature(rawData);
       if ((int)new_temp != (int)fog_temp) {
         fog_temp = new_temp;
+        if (fog_temp > fog_upper_temp) {
+          heater = false;
+        }
+        if (fog_temp < fog_lower_temp) {
+          heater = true;
+        }
         update_text = true;
       }
+    } else {
+      heater = false;
+      update_text = true;
     }
 
     if ((int)readNTCTemp() != (int)sys_temp) {
@@ -272,7 +284,9 @@ void loop() {
     update_text = true;
   }
 
-  digitalWrite(PUMP_PIN, !(button || wifi_button));
+  pump = (button || wifi_button);
+
+  digitalWrite(PUMP_PIN, !pump);
 
   display.display();
   delay(50);
