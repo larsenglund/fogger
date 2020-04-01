@@ -23,16 +23,38 @@
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+
+// which analog pin to connect
+#define THERMISTORPIN A0  
+// resistance at 25 degrees C
+#define THERMISTORNOMINAL 10000      
+// temp. for nominal resistance (almost always 25 C)
+#define TEMPERATURENOMINAL 25   
+// how many samples to take and average, more takes longer
+// but is more 'smooth'
+#define NUMSAMPLES 5
+// The beta coefficient of the thermistor (usually 3000-4000)
+#define BCOEFFICIENT 3892
+// the value of the 'other' resistor
+#define SERIESRESISTOR 47090  
+
+#define BUTTON_PIN D3
+#define PUMP_PIN D0
+#define HEATER_PIN D4
+
+int samples[NUMSAMPLES];
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 volatile bool update_text = true;
 volatile bool heater = false;
 volatile bool pump = false;
 volatile bool button = false;
+volatile bool prev_button = false;
 volatile bool wifi_button = false;
 volatile bool connected = false;
 volatile int num_connected = 0;
-volatile float fog_temp = 20.0;
+volatile float fog_temp = 0.0;
 volatile float sys_temp = 0.0;
 volatile float fogjuice = 0.0;
 uint32_t test_timestamp;
@@ -44,6 +66,7 @@ char buff[16];
 int16_t _x1, _y1;
 uint16_t w, h;
 int32_t rawData = 0;
+int delay_count = 0;
 
 MAX31855 myMAX31855(D8);
 
@@ -71,6 +94,10 @@ void onWebSocketEvent(uint8_t client_num,
                       size_t length);
 void onIndexRequest(AsyncWebServerRequest *request);
 void onPageNotFound(AsyncWebServerRequest *request);
+
+int averageAnalogRead();
+float readNTCTemp();
+
 
 void setup() {
   Serial.begin(115200);
@@ -144,10 +171,10 @@ void setup() {
   myMAX31855.begin();
   while (myMAX31855.getChipID() != MAX31855_ID)
   {
-    Serial.println(F("MAX6675 error")); //(F()) saves string to flash & keeps dynamic memory free
+    Serial.println(F("MAX31855 error")); //(F()) saves string to flash & keeps dynamic memory free
     delay(5000);
   }
-  Serial.println(F("MAX6675 OK"));
+  Serial.println(F("MAX31855 OK"));
 
   switch (myMAX31855.detectThermocouple())
   {
@@ -176,11 +203,21 @@ void setup() {
 
     Serial.print(F("Cold Junction: "));
     Serial.println(myMAX31855.getColdJunctionTemperature(rawData));
+    fog_temp = myMAX31855.getColdJunctionTemperature(rawData);
 
     Serial.print(F("Thermocouple: "));
     Serial.println(myMAX31855.getTemperature(rawData));
   }
-  
+
+  Serial.print("NTC RAW: ");
+  Serial.println(analogRead(A0));
+  Serial.print("NTC: ");
+  sys_temp = readNTCTemp();
+  Serial.println(sys_temp);
+
+  pinMode(BUTTON_PIN,INPUT_PULLUP);
+  pinMode(PUMP_PIN,OUTPUT);
+
   test_timestamp = millis()+1000;
 }
 
@@ -199,17 +236,97 @@ void loop() {
   webSocket.loop();
   drawAnimation();
 
-  if (test_timestamp < millis()) {
+  if (++delay_count > 10) {
+    delay_count = 0;
+    if (myMAX31855.detectThermocouple() == MAX31855_THERMOCOUPLE_OK) {
+      rawData = myMAX31855.readRawData();
+      float new_temp = myMAX31855.getColdJunctionTemperature(rawData);
+      if ((int)new_temp != (int)fog_temp) {
+        fog_temp = new_temp;
+        update_text = true;
+      }
+    }
+
+    if ((int)readNTCTemp() != (int)sys_temp) {
+      sys_temp = readNTCTemp();
+      update_text = true;
+    }
+  }
+
+  /*if (test_timestamp < millis()) {
     test_timestamp = millis() + 1000;
     fog_temp = (fog_temp + 1.0);
     if (fog_temp > 300) fog_temp = 0;
     fogjuice = (fogjuice + 0.3);
     if (fogjuice > 5000) fogjuice = 0;
     update_text = true;
+  }*/
+
+  button = !digitalRead(BUTTON_PIN);
+  if (button != prev_button) {
+    Serial.print("Button: ");
+    Serial.println(button);
+    Serial.print("WiFi button: ");
+    Serial.println(wifi_button);
+    prev_button = button;
+    update_text = true;
   }
+
+  digitalWrite(PUMP_PIN, !(button || wifi_button));
 
   display.display();
   delay(50);
+}
+
+int averageAnalogRead() {
+  int val = 0;
+  for(int i = 0; i < 20; i++) {
+    val += analogRead(A0);
+    delay(1);
+  }
+  return val / 20;
+}
+
+float readNTCTemp() {
+  // Thermistor code from https://learn.adafruit.com/thermistor/using-a-thermistor
+  uint8_t i;
+  float average;
+ 
+  // take N samples in a row, with a slight delay
+  for (i=0; i< NUMSAMPLES; i++) {
+   samples[i] = analogRead(THERMISTORPIN);
+   delay(10);
+  }
+  
+  // average all the samples out
+  average = 0;
+  for (i=0; i< NUMSAMPLES; i++) {
+     average += samples[i];
+  }
+  average /= NUMSAMPLES;
+ 
+  //Serial.print("Average analog reading "); 
+  //Serial.println(average);
+  
+  // convert the value to resistance
+  average = 1023 / average - 1;
+  average = SERIESRESISTOR / average;
+  //Serial.print("Thermistor resistance "); 
+  //Serial.println(average);
+  
+  float steinhart;
+  steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
+  steinhart = log(steinhart);                  // ln(R/Ro)
+  steinhart /= BCOEFFICIENT;                   // 1/B * ln(R/Ro)
+  steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
+  steinhart = 1.0 / steinhart;                 // Invert
+  steinhart -= 273.15;                         // convert to C
+  
+  //Serial.print("Temperature "); 
+  //Serial.print(steinhart);
+  //Serial.println(" *C");
+
+  return steinhart;
 }
 
 void drawAnimation() {
