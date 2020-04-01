@@ -220,6 +220,7 @@ void setup() {
 
   pinMode(BUTTON_PIN,INPUT_PULLUP);
   pinMode(PUMP_PIN,OUTPUT);
+  pinMode(HEATER_PIN,OUTPUT);
 
   test_timestamp = millis()+1000;
 }
@@ -260,6 +261,7 @@ void loop() {
     }
     if (sys_temp > 90.0) {
       heater = false;
+      update_text = true;
     }
 
     if ((int)readNTCTemp() != (int)sys_temp) {
@@ -290,6 +292,7 @@ void loop() {
   pump = (button || wifi_button);
 
   digitalWrite(PUMP_PIN, !pump);
+  digitalWrite(HEATER_PIN, !heater);
 
   display.display();
   delay(50);
