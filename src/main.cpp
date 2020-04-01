@@ -258,6 +258,9 @@ void loop() {
       heater = false;
       update_text = true;
     }
+    if (sys_temp > 90.0) {
+      heater = false;
+    }
 
     if ((int)readNTCTemp() != (int)sys_temp) {
       sys_temp = readNTCTemp();
