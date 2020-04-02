@@ -234,6 +234,7 @@ void loop() {
     sprintf(msg_buf, "%d %d %d %d %d %d", (int)fog_temp, (int)sys_temp, heater, pump, (int)fogjuice, button);
     Serial.printf("Broadcasting: %s\n", msg_buf);
     webSocket.broadcastTXT(msg_buf);
+    //display.drawRect(0, 0, display.width(), display.height(), SSD1306_WHITE); // draw fullscreen rect to help align the deplay in its enclosure
   }
 
   dnsServer.processNextRequest();
