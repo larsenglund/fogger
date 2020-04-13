@@ -135,6 +135,7 @@ void setup() {
 
   // On HTTP request for root, provide index.html file
   server.on("/", HTTP_GET, onIndexRequest);
+  server.on("/fogger", HTTP_GET, onIndexRequest);
   server.on("/generate_204", HTTP_GET, onIndexRequest);
   server.on("/gen_204", HTTP_GET, onIndexRequest);
   server.on("/L0", HTTP_GET, onIndexRequest);
@@ -246,6 +247,9 @@ void loop() {
     if (myMAX31855.detectThermocouple() == MAX31855_THERMOCOUPLE_OK) {
       rawData = myMAX31855.readRawData();
       float new_temp = myMAX31855.getTemperature(rawData);
+      if (new_temp > 800) {
+        new_temp = fog_temp;
+      }
       if ((int)new_temp != (int)fog_temp) {
         fog_temp = new_temp;
         if (fog_temp > fog_upper_temp) {
